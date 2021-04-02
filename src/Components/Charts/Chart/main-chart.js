@@ -3,7 +3,7 @@ import Axios from 'axios';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Grid from '@material-ui/core/Grid';
@@ -52,7 +52,6 @@ const CustomizedSelects = () => {
 
 	// States - Select Input Component
 	const [ valueSelectUniversity, setValueSelectUniversity ] = useState('');
-	const [ valueSelectYear, setValueSelectYear ] = useState('');
 	const [ valueSelectDegree, setValueSelectDegree ] = useState('');
 
 	// States - API data
@@ -60,11 +59,13 @@ const CustomizedSelects = () => {
 	const [ data_university, set_university ] = useState([]);
 	const [ data_year, set_year ] = useState([]);
 	const [ data_degree, set_degree ] = useState([]);
+	const [ data_employment_rate_overall, set_employment_rate_overall ] = useState([]);
+	const [ data_employment_rate_ft_perm, set_employment_rate_ft_perm ] = useState([]);
 
 	// Handler
-	const handleChangeUniversity = (e) => setValueSelectUniversity(e.target.value);
-
-	const handleChangeYear = (e) => setValueSelectYear(e.target.value);
+	const handleChangeUniversity = (e) => {
+		setValueSelectUniversity(e.target.value);
+	};
 
 	const handleChangeDegree = (e) => setValueSelectDegree(e.target.value);
 
@@ -78,21 +79,20 @@ const CustomizedSelects = () => {
 
 			//Arrays
 			let arrayUniversity = [];
-			let arrayYear = [];
-			// let arrayDegree = [];
+			// let arrayYear = [];
 
 			response.data.result.records.map((item) => {
 				arrayUniversity.push(item.university);
-				arrayYear.push(item.year);
+				// arrayYear.push(item.year);
 			});
 
 			// Array with Unique Value
 			let arrayUniversityUnique = [ ...new Set(arrayUniversity) ];
-			let arrayYearUnique = [ ...new Set(arrayYear) ];
+			// let arrayYearUnique = [ ...new Set(arrayYear) ];
 
 			// Set State
 			set_university(arrayUniversityUnique);
-			set_year(arrayYearUnique);
+			// set_year(arrayYearUnique);
 		});
 	}, []);
 
@@ -101,24 +101,98 @@ const CustomizedSelects = () => {
 		event.preventDefault();
 		if (valueSelectUniversity !== '') {
 			let arrayDegree = [];
+			// let arrayEmploymentRateOverall = [];
+			// let arrayYear = [];
 
-			// Filter API Data Logic
+			// Filter Array of API Data Logic
 			data_university.map((university) => {
 				if (valueSelectUniversity === university) {
 					data_api.map((item) => {
+						// Conditions
 						if (item.university === valueSelectUniversity) {
 							arrayDegree.push(item.degree);
+							// arrayYear.push(item.year);
 						}
 						let arrayDegreeUnique = [ ...new Set(arrayDegree) ];
+						// let arrayYearUnique = [ ...new Set(arrayYear) ];
 
+						// Set State
 						set_degree(arrayDegreeUnique);
+						// set_employment_rate_overall(arrayEmploymentRateOverall);
+						// set_year(arrayYearUnique);
 					});
 				}
 			});
 
+			// Filter by selected University and Degree
+			let arrayEmploymentRateOverall = [];
+			let arrayEmploymentFtPerm = [];
+			let arrayYear = [];
+
+			data_api.map((obj) => {
+				if (valueSelectUniversity === obj.university && valueSelectDegree === obj.degree) {
+					// Add to Array
+					arrayEmploymentRateOverall.push(obj.employment_rate_overall);
+					arrayEmploymentFtPerm.push(obj.employment_rate_ft_perm);
+					arrayYear.push(obj.year);
+
+					//Set State
+					set_employment_rate_overall(arrayEmploymentRateOverall);
+					set_employment_rate_ft_perm(arrayEmploymentFtPerm);
+					set_year(arrayYear);
+
+					console.log(obj.degree, obj.year, obj.employment_rate_overall);
+				}
+			});
+
+			console.log(arrayYear);
+
+			// Reset filter if empty
+			if (valueSelectUniversity === '' || valueSelectDegree === '') {
+				set_employment_rate_overall('');
+				set_employment_rate_ft_perm('');
+			}
+
 			// Enable second field input degree
 			setIsSelectDisabled(false);
 		}
+	};
+
+	// Charts
+	let chart_employment_rate_overall = {
+		labels: data_year, // Array of Strings Unique Value
+		datasets: [
+			{
+				label: 'Overall Employment Rate (%)',
+				data: data_employment_rate_overall, // Array of Objects
+				backgroundColor: [
+					'rgba(255,99, 132, 0.6)',
+					'rgba(54,162,235, 0.6)',
+					'rgba(255,206,86, 0.6)',
+					'rgba(75,192,192, 0.6)',
+					'rgba(153,102,255, 0.6)',
+					'rgba(255,159,64, 0.6)'
+				]
+			}
+		]
+	};
+
+	let chart_employment_rate_ft_perm = {
+		labels: data_year, // Array of Strings Unique Value
+		datasets: [
+			{
+				label: 'Full Time Permanent Employment Rate(%)',
+				data: data_employment_rate_ft_perm, // Array of Objects
+				backgroundColor: [
+					'rgba(255,99, 132, 0.6)',
+					'rgba(54,162,235, 0.6)',
+					'rgba(255,206,86, 0.6)',
+					'rgba(75,192,192, 0.6)',
+					'rgba(153,102,255, 0.6)',
+					'rgba(255,159,64, 0.6)'
+				]
+			}
+		]
 	};
 
 	return (
@@ -159,35 +233,41 @@ const CustomizedSelects = () => {
 							))}
 						</Select>
 					</FormControl>
-					<FormControl className={classes.formControl}>
-						<InputLabel htmlFor="grouped-select">Year</InputLabel>
-						<Select
-							defaultValue=""
-							id="grouped-select"
-							onChange={handleChangeYear}
-							disabled={isSelectDisable}
-						>
-							<MenuItem value="">
-								<em>None</em>
-							</MenuItem>
-							{data_year.map((menuValue) => (
-								<MenuItem value={menuValue} key={menuValue}>
-									{menuValue}
-								</MenuItem>
-							))}
-						</Select>
-					</FormControl>
+
 					<Button variant="contained" color="primary" type="submit" className={classes.customButtomSearch}>
 						Filter
+					</Button>
+
+					<Button variant="contained" color="secondary" type="submit" className={classes.customButtomSearch}>
+						Reset
 					</Button>
 				</form>
 			</Box>
 
-			{valueSelectUniversity !== '' && valueSelectDegree !== '' && valueSelectYear !== '' ? (
+			{valueSelectUniversity !== '' && valueSelectDegree !== '' ? (
 				<p>
-					Filter by: {valueSelectUniversity} | {valueSelectDegree} | {valueSelectYear}
+					Filter by: {valueSelectUniversity} | {valueSelectDegree}
 				</p>
 			) : null}
+
+			<div className={classes.root}>
+				<Box my={1}>
+					<Grid container spacing={3}>
+						<Grid item xs={12} md={6}>
+							<Box my={2}>
+								<Typography variant="h7">Overall Employment Rate (%)</Typography>
+							</Box>
+							<Bar data={chart_employment_rate_overall} />
+						</Grid>
+						<Grid item xs={12} md={6}>
+							<Box my={2}>
+								<Typography variant="h7">Full Time Permanent Employment Rate(%)</Typography>
+							</Box>
+							<Bar data={chart_employment_rate_ft_perm} />
+						</Grid>
+					</Grid>
+				</Box>
+			</div>
 		</Container>
 	);
 };
