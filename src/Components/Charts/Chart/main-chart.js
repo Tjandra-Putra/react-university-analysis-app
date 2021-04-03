@@ -13,7 +13,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Chip from '@material-ui/core/Chip';
-import MenuItem from '@material-ui/core/MenuItem';
+import { DataGrid } from '@material-ui/data-grid';
 
 import { Bar, Line, Pie, Doughnut, HorizontalBar } from 'react-chartjs-2';
 
@@ -124,6 +124,7 @@ const CustomizedSelects = () => {
 	const [ data_basic_monthly_median, set_basic_monthly_median ] = useState([]);
 	const [ data_gross_mthly_25_percentile, set_gross_mthly_25_percentile ] = useState([]);
 	const [ data_gross_mthly_75_percentile, set_gross_mthly_75_percentile ] = useState([]);
+	const [ data_grid, set_data_grid ] = useState([]);
 
 	useEffect(() => {
 		Axios.get(
@@ -184,6 +185,7 @@ const CustomizedSelects = () => {
 		let arrayBasicMonthlySalaryMedian = [];
 		let arrayGrossMthly25Percentile = [];
 		let arrayGrossMthly75Percentile = [];
+		let tableArray = [];
 
 		data_api.map((obj) => {
 			if (valueSelectUniversity === obj.university && e.target.value === obj.degree) {
@@ -191,13 +193,13 @@ const CustomizedSelects = () => {
 				arrayEmploymentRateOverall.push(obj.employment_rate_overall);
 				arrayEmploymentFtPerm.push(obj.employment_rate_ft_perm);
 				arrayYear.push(obj.year);
-				arrayBasicMonthlySalaryMean.push(obj.basic_monthly_mean);
-				arrayBasicMonthlySalaryMedian.push(obj.basic_monthly_median);
+				arrayBasicMonthlySalaryMean.push(obj.gross_monthly_mean);
+				arrayBasicMonthlySalaryMedian.push(obj.gross_monthly_median);
 				arrayGrossMthly25Percentile.push(obj.gross_mthly_25_percentile);
 				arrayGrossMthly75Percentile.push(obj.gross_mthly_75_percentile);
 				arraySchool.push(obj.school);
 
-				//Set State
+				// Set State
 				setValueSelectSchool(arraySchool[0]);
 				set_employment_rate_overall(arrayEmploymentRateOverall);
 				set_employment_rate_ft_perm(arrayEmploymentFtPerm);
@@ -206,6 +208,23 @@ const CustomizedSelects = () => {
 				set_basic_monthly_median(arrayBasicMonthlySalaryMedian);
 				set_gross_mthly_25_percentile(arrayGrossMthly25Percentile);
 				set_gross_mthly_75_percentile(arrayGrossMthly75Percentile);
+
+				// Set State for Data Grid Table
+				tableArray.push({
+					id: obj._id,
+					year: obj.year,
+					university: obj.university,
+					school: obj.school,
+					degree: obj.degree,
+					overall_employment_rate: obj.employment_rate_overall,
+					fulltime_employment_rate: obj.employment_rate_ft_perm,
+					gross_monthly_salary_mean: obj.gross_monthly_mean,
+					gross_monthly_salary_median: obj.gross_monthly_median,
+					gross_monthly_salary_25th: obj.gross_mthly_25_percentile,
+					gross_monthly_salary_75th: obj.gross_mthly_75_percentile
+				});
+
+				set_data_grid(tableArray);
 
 				console.log(obj.degree, obj.year, obj.employment_rate_overall, obj.basic_monthly_mean);
 			}
@@ -269,7 +288,7 @@ const CustomizedSelects = () => {
 		]
 	};
 
-	let chart_basic_monthly_mean = {
+	let chart_gross_monthly_mean = {
 		labels: data_year, // Array of Strings Unique Value
 		datasets: [
 			{
@@ -280,7 +299,7 @@ const CustomizedSelects = () => {
 		]
 	};
 
-	let chart_basic_monthly_median = {
+	let chart_gross_monthly_median = {
 		labels: data_year, // Array of Strings Unique Value
 		datasets: [
 			{
@@ -334,6 +353,92 @@ const CustomizedSelects = () => {
 	const resetFormHandler = () => {
 		window.location.reload(false);
 	};
+
+	// Table
+	const columns = [
+		{
+			field: 'id',
+			headerName: 'ID',
+			width: 100
+		},
+		{ field: 'year', headerName: 'Year', width: 120 },
+		{
+			field: 'university',
+			headerName: 'University',
+			width: 150,
+			sortable: false
+		},
+		{
+			field: 'school',
+			headerName: 'School',
+			width: 150,
+			sortable: false
+		},
+		{
+			field: 'degree',
+			headerName: 'Degree',
+			width: 160,
+			sortable: false
+		},
+		{
+			field: 'overall_employment_rate',
+			headerName: 'Overall Employment Rate (%)',
+			width: 300,
+			description:
+				'Overall employment rate refers to the number of graduates working in full-time permanent, part-time, temporary or freelance basis, as a proportion of graduates in the labour force (i.e. those who were working, or not working but actively looking and available for work) approximately 6 months after completing their final examinations.'
+		},
+		{
+			field: 'fulltime_employment_rate',
+			headerName: 'Full-Time Employment Rate (%)',
+			width: 300,
+			description:
+				'Full-time permanent employment rate refers to the number of graduates in employment of at least 35 hours a week and where the employment is not temporary (including contracts of one year or more), as a proportion of graduates in the labour force (i.e. those who were working, or not working but actively looking and available for work) approximately 6 months after completing their final examinations.'
+		},
+		{
+			field: 'gross_monthly_salary_mean',
+			headerName: 'Gross Monthly Salary - Mean (S$)',
+			width: 320,
+			description:
+				'Gross monthly salary pertains only to full-time permanently employed graduates. It comprises basic salary, overtime payments, commissions, fixed allowances, and other regular cash payments, before deductions of the employee’s CPF contributions and personal income tax. Employer’s CPF contributions, bonuses, stock options, lump sum payments, and payments-in-kind are excluded.'
+		},
+		{
+			field: 'gross_monthly_salary_median',
+			headerName: 'Gross Monthly Salary - Median (S$)',
+			width: 320,
+			description:
+				'Gross monthly salary pertains only to full-time permanently employed graduates. It comprises basic salary, overtime payments, commissions, fixed allowances, and other regular cash payments, before deductions of the employee’s CPF contributions and personal income tax. Employer’s CPF contributions, bonuses, stock options, lump sum payments, and payments-in-kind are excluded.'
+		},
+		{
+			field: 'gross_monthly_salary_25th',
+			headerName: 'Gross Monthly Salary - 25th Percentile (S$)',
+			width: 370,
+			description:
+				'Gross monthly salary pertains only to full-time permanently employed graduates. It comprises basic salary, overtime payments, commissions, fixed allowances, and other regular cash payments, before deductions of the employee’s CPF contributions and personal income tax. Employer’s CPF contributions, bonuses, stock options, lump sum payments, and payments-in-kind are excluded.'
+		},
+		{
+			field: 'gross_monthly_salary_75th',
+			headerName: 'Gross Monthly Salary - 75th Percentile (S$)',
+			width: 370,
+			description:
+				'Gross monthly salary pertains only to full-time permanently employed graduates. It comprises basic salary, overtime payments, commissions, fixed allowances, and other regular cash payments, before deductions of the employee’s CPF contributions and personal income tax. Employer’s CPF contributions, bonuses, stock options, lump sum payments, and payments-in-kind are excluded.'
+		}
+	];
+
+	const rows = data_grid.map((item) => {
+		return {
+			id: item.id,
+			year: item.year,
+			university: item.university,
+			school: item.school,
+			degree: item.degree,
+			overall_employment_rate: item.overall_employment_rate,
+			fulltime_employment_rate: item.fulltime_employment_rate,
+			gross_monthly_salary_mean: item.gross_monthly_salary_mean,
+			gross_monthly_salary_median: item.gross_monthly_salary_median,
+			gross_monthly_salary_25th: item.gross_monthly_salary_25th,
+			gross_monthly_salary_75th: item.gross_monthly_salary_75th
+		};
+	});
 
 	return (
 		<Container>
@@ -399,40 +504,17 @@ const CustomizedSelects = () => {
 
 			{valueSelectUniversity !== '' && valueSelectDegree !== '' ? (
 				<React.Fragment>
-					<Chip
-						label={valueSelectUniversity}
-						component="a"
-						clickable
-						// variant="outlined"
-						className={classes.chipWarning}
-						// color="primary"
-					/>
+					<Chip label={valueSelectUniversity} component="a" clickable className={classes.chipWarning} />
+
+					<Chip label={valueSchool} component="a" clickable className={classes.chipDanger} />
+
+					<Chip label={valueSelectDegree} component="a" clickable className={classes.chipPurple} />
 
 					<Chip
-						label={valueSchool}
+						label={'Data Count: ' + data_grid.length}
 						component="a"
 						clickable
-						// variant="outlined"
-						className={classes.chipDanger}
-						// color="primary"
-					/>
-
-					<Chip
-						label={valueSelectDegree}
-						component="a"
-						clickable
-						// variant="outlined"
-						className={classes.chipPurple}
-						// color="primary"
-					/>
-
-					<Chip
-						label={'Data Count: ' + data_university.length}
-						component="a"
-						clickable
-						// variant="outlined"
 						className={classes.chipPrimary}
-						// color="primary"
 					/>
 				</React.Fragment>
 			) : null}
@@ -458,15 +540,15 @@ const CustomizedSelects = () => {
 					<Grid container spacing={3}>
 						<Grid item xs={12} md={6}>
 							<Box my={2}>
-								<Typography variant="h7">Basic Monthly Salary Mean (S$)</Typography>
+								<Typography variant="h7">Gross Monthly Salary Mean (S$)</Typography>
 							</Box>
-							<Line data={chart_basic_monthly_mean} />
+							<Line data={chart_gross_monthly_mean} />
 						</Grid>
 						<Grid item xs={12} md={6}>
 							<Box my={2}>
-								<Typography variant="h7">Basic Monthly Salary Median (S$)</Typography>
+								<Typography variant="h7">Gross Monthly Salary Median (S$)</Typography>
 							</Box>
-							<Line data={chart_basic_monthly_median} />
+							<Line data={chart_gross_monthly_median} />
 						</Grid>
 					</Grid>
 				</Box>
@@ -487,6 +569,13 @@ const CustomizedSelects = () => {
 						</Grid>
 					</Grid>
 				</Box>
+			</div>
+
+			<div style={{ height: 400, width: '100%', marginTop: '5vh' }}>
+				<Box my={2}>
+					<Typography variant="h7">Grid Data</Typography>
+				</Box>
+				<DataGrid rows={rows} columns={columns} pageSize={5} />
 			</div>
 
 			<Snackbar
