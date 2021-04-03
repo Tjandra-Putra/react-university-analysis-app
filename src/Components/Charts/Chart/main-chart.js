@@ -125,6 +125,29 @@ const CustomizedSelects = () => {
 	const [ data_gross_mthly_25_percentile, set_gross_mthly_25_percentile ] = useState([]);
 	const [ data_gross_mthly_75_percentile, set_gross_mthly_75_percentile ] = useState([]);
 
+	useEffect(() => {
+		Axios.get(
+			'https://data.gov.sg/api/action/datastore_search?resource_id=9326ca53-9153-4a9c-b93f-8ae032637b70&limit=1000'
+		).then((response) => {
+			console.log(response.data.result.records);
+
+			set_data_api(response.data.result.records);
+
+			//Arrays
+			let arrayUniversity = [];
+
+			response.data.result.records.map((item) => {
+				arrayUniversity.push(item.university);
+			});
+
+			// Array with Unique Value
+			let arrayUniversityUnique = [ ...new Set(arrayUniversity) ];
+
+			// Set State
+			set_university(arrayUniversityUnique);
+		});
+	}, []);
+
 	// Handler
 	const handleChangeUniversity = (e) => {
 		setValueSelectUniversity(e.target.value);
@@ -191,44 +214,21 @@ const CustomizedSelects = () => {
 		let msgString = valueSelectUniversity + ' > ' + e.target.value;
 		setSnackBarMsg(msgString);
 
-		// Reset filter if empty
-		if (valueSelectUniversity === '' || valueSelectDegree === '') {
-			set_employment_rate_overall('');
-			set_employment_rate_ft_perm('');
-			set_basic_monthly_mean('');
-			set_basic_monthly_median('');
-			set_gross_mthly_25_percentile('');
-			set_gross_mthly_75_percentile('');
-		}
+		// // Reset filter if empty
+		// if (valueSelectUniversity === '' || valueSelectDegree === '') {
+		// 	set_employment_rate_overall('');
+		// 	set_employment_rate_ft_perm('');
+		// 	set_basic_monthly_mean('');
+		// 	set_basic_monthly_median('');
+		// 	set_gross_mthly_25_percentile('');
+		// 	set_gross_mthly_75_percentile('');
+		// }
 
 		setOpen(true);
 
 		// Enable second field input degree
 		setIsSelectDisabled(false);
 	};
-
-	useEffect(() => {
-		Axios.get(
-			'https://data.gov.sg/api/action/datastore_search?resource_id=9326ca53-9153-4a9c-b93f-8ae032637b70&limit=1000'
-		).then((response) => {
-			console.log(response.data.result.records);
-
-			set_data_api(response.data.result.records);
-
-			//Arrays
-			let arrayUniversity = [];
-
-			response.data.result.records.map((item) => {
-				arrayUniversity.push(item.university);
-			});
-
-			// Array with Unique Value
-			let arrayUniversityUnique = [ ...new Set(arrayUniversity) ];
-
-			// Set State
-			set_university(arrayUniversityUnique);
-		});
-	}, []);
 
 	// Charts
 	let chart_employment_rate_overall = {
