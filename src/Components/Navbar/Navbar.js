@@ -14,7 +14,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import Box from '@material-ui/core/Box';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -66,32 +66,39 @@ export default function ButtonAppBar() {
 							<MenuIcon />
 						</IconButton>
 						<Typography variant="h6" className={classes.title}>
-							Graduate Employment Survey
+							{/* Graduate Employment Survey */}
+							University Analytics
 						</Typography>
-						<IconButton
-							className={(classes.menuButton, classes.linkedInIcon)}
-							color="inherit"
-							href="https://www.linkedin.com/in/tjandra-putra/"
-							target="_blank"
-						>
-							<LinkedInIcon />
-						</IconButton>
-						<IconButton
-							className={classes.menuButton}
-							color="inherit"
-							href="https://github.com/Tjandra-Putra"
-							target="_blank"
-						>
-							<GitHubIcon />
-						</IconButton>
-						<IconButton
-							className={(classes.menuButton, classes.mailIcon)}
-							color="inherit"
-							href="https://github.com/Tjandra-Putra"
-							target="_blank"
-						>
-							<MailIcon />
-						</IconButton>
+						<Box display={{ xs: 'none', sm: 'block' }}>
+							<IconButton
+								className={(classes.menuButton, classes.linkedInIcon)}
+								color="inherit"
+								href="https://www.linkedin.com/in/tjandra-putra/"
+								target="_blank"
+							>
+								<LinkedInIcon />
+							</IconButton>
+						</Box>
+						<Box display={{ xs: 'none', sm: 'block' }}>
+							<IconButton
+								className={classes.menuButton}
+								color="inherit"
+								href="https://github.com/Tjandra-Putra"
+								target="_blank"
+							>
+								<GitHubIcon />
+							</IconButton>
+						</Box>
+						<Box display={{ xs: 'none', sm: 'block' }}>
+							<IconButton
+								className={(classes.menuButton, classes.mailIcon)}
+								color="inherit"
+								href="mailto:tjandraputra2000@gmailz.com"
+								target="_blank"
+							>
+								<MailIcon />
+							</IconButton>
+						</Box>
 					</Toolbar>
 				</Container>
 				<Drawer />
@@ -105,7 +112,7 @@ export default function ButtonAppBar() {
 								<Typography>
 									The purpose of this project is to provide students from any level of institution a
 									clear and informative visualisation of the trends and analytics of "Graduate
-									Employment Survey" from the 5 Local University in Singapore - NTU, NUS, SIT, SMU,
+									Employment Survey" from the 6 Local University in Singapore - NTU, NUS, SIT, SMU,
 									SUSS & SUTD.
 								</Typography>
 							</ListItemText>

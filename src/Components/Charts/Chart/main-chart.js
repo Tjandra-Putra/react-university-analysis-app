@@ -13,6 +13,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Chip from '@material-ui/core/Chip';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { Bar, Line, Pie, Doughnut, HorizontalBar } from 'react-chartjs-2';
 
@@ -34,16 +35,19 @@ const useStyles = makeStyles((theme) => ({
 		minWidth: 120
 	},
 	customFormUniversity: {
+		marginTop: '0.5rem',
 		margin: theme.spacing(1),
-		minWidth: 364
+		// minWidth: 350
+		width: '100%'
 	},
 	customFormDegree: {
+		marginTop: '0.5rem',
 		margin: theme.spacing(1),
-		minWidth: 364,
-		maxWidth: 364
+		// minWidth: 350
+		width: '100%'
 	},
 	customButtomSearch: {
-		marginTop: '1.3rem',
+		marginTop: '1.5rem',
 		marginLeft: '0.7rem'
 	},
 	chip: {
@@ -52,37 +56,43 @@ const useStyles = makeStyles((theme) => ({
 	chipWarning: {
 		backgroundColor: 'rgba(255, 205, 58, 0.2)',
 		color: '#886701',
-		marginRight: '0.5rem'
+		marginRight: '0.5rem',
+		marginTop: '0.5rem',
+		maxWidth: '25em'
 	},
 	chipDanger: {
 		backgroundColor: 'rgb(250, 235, 235)',
 		color: '#BB2E3E',
-		marginRight: '0.5rem'
+		marginRight: '0.5rem',
+		marginTop: '0.5rem',
+		maxWidth: '25em'
 	},
 	chipPink: {
 		backgroundColor: 'rgb(250, 235, 235)',
 		color: 'rgb(120, 33, 117)',
-		marginRight: '0.5rem'
+		marginRight: '0.5rem',
+		marginTop: '0.5rem',
+		maxWidth: '25em'
 	},
 	chipPurple: {
 		backgroundColor: 'rgba(41, 0, 138, 0.2)',
 		color: 'rgb(41, 0, 138)',
-		marginRight: '0.5rem'
+		marginRight: '0.5rem',
+		marginTop: '0.5rem',
+		maxWidth: '25em'
 	},
 	chipPrimary: {
 		backgroundColor: 'rgba(20, 106, 144, 0.2)',
 		color: 'rgb(20, 106, 144)',
-		marginRight: '0.5rem'
+		marginRight: '0.5rem',
+		marginTop: '0.5rem',
+		maxWidth: '25em'
 	}
 }));
 
 const CustomizedSelects = () => {
 	// SnackBar
 	const [ open, setOpen ] = React.useState(false);
-
-	const handleClick = () => {
-		setOpen(true);
-	};
 
 	const handleClose = (event, reason) => {
 		if (reason === 'clickaway') {
@@ -95,7 +105,7 @@ const CustomizedSelects = () => {
 	const classes = useStyles();
 
 	// Init
-	const [ isSelectDisable, setIsSelectDisabled ] = useState(true);
+	const [ isSelectDisable, setIsSelectDisabled ] = useState(false);
 	const [ snackBarMsg, setSnackBarMsg ] = useState('Please Provide Input');
 
 	// States - Select Input Component
@@ -118,9 +128,84 @@ const CustomizedSelects = () => {
 	// Handler
 	const handleChangeUniversity = (e) => {
 		setValueSelectUniversity(e.target.value);
+		let arrayDegree = [];
+
+		// Filter Array of API Data Logic
+		data_university.map((university) => {
+			if (e.target.value === university) {
+				data_api.map((item) => {
+					// Conditions
+					if (item.university === e.target.value) {
+						arrayDegree.push(item.degree);
+					}
+					let arrayDegreeUnique = [ ...new Set(arrayDegree) ];
+
+					// Set State
+					set_degree(arrayDegreeUnique.sort());
+				});
+			}
+		});
+
+		console.log('Onchange ' + valueSelectUniversity);
 	};
 
-	const handleChangeDegree = (e) => setValueSelectDegree(e.target.value);
+	const handleChangeDegree = (e) => {
+		setValueSelectDegree(e.target.value);
+
+		// Filter by selected University and Degree
+		let arraySchool = [];
+		let arrayEmploymentRateOverall = [];
+		let arrayEmploymentFtPerm = [];
+		let arrayYear = [];
+		let arrayBasicMonthlySalaryMean = [];
+		let arrayBasicMonthlySalaryMedian = [];
+		let arrayGrossMthly25Percentile = [];
+		let arrayGrossMthly75Percentile = [];
+
+		data_api.map((obj) => {
+			if (valueSelectUniversity === obj.university && e.target.value === obj.degree) {
+				// Add to Array
+				arrayEmploymentRateOverall.push(obj.employment_rate_overall);
+				arrayEmploymentFtPerm.push(obj.employment_rate_ft_perm);
+				arrayYear.push(obj.year);
+				arrayBasicMonthlySalaryMean.push(obj.basic_monthly_mean);
+				arrayBasicMonthlySalaryMedian.push(obj.basic_monthly_median);
+				arrayGrossMthly25Percentile.push(obj.gross_mthly_25_percentile);
+				arrayGrossMthly75Percentile.push(obj.gross_mthly_75_percentile);
+				arraySchool.push(obj.school);
+
+				//Set State
+				setValueSelectSchool(arraySchool[0]);
+				set_employment_rate_overall(arrayEmploymentRateOverall);
+				set_employment_rate_ft_perm(arrayEmploymentFtPerm);
+				set_year(arrayYear);
+				set_basic_monthly_mean(arrayBasicMonthlySalaryMean);
+				set_basic_monthly_median(arrayBasicMonthlySalaryMedian);
+				set_gross_mthly_25_percentile(arrayGrossMthly25Percentile);
+				set_gross_mthly_75_percentile(arrayGrossMthly75Percentile);
+
+				console.log(obj.degree, obj.year, obj.employment_rate_overall, obj.basic_monthly_mean);
+			}
+		});
+
+		let msgString = valueSelectUniversity + ' > ' + e.target.value;
+		setSnackBarMsg(msgString);
+
+		// Reset filter if empty
+		if (valueSelectUniversity === '' || valueSelectDegree === '') {
+			set_employment_rate_overall('');
+			set_employment_rate_ft_perm('');
+			set_basic_monthly_mean('');
+			set_basic_monthly_median('');
+			set_gross_mthly_25_percentile('');
+			set_gross_mthly_75_percentile('');
+		}
+
+		setOpen(true);
+
+		// Enable second field input degree
+		setIsSelectDisabled(false);
+	};
 
 	useEffect(() => {
 		Axios.get(
@@ -144,79 +229,6 @@ const CustomizedSelects = () => {
 			set_university(arrayUniversityUnique);
 		});
 	}, []);
-
-	// Display the specific Degrees for chosen University
-	const handleSubmitForm = (event) => {
-		event.preventDefault();
-		if (valueSelectUniversity !== '') {
-			let arrayDegree = [];
-
-			// Filter Array of API Data Logic
-			data_university.map((university) => {
-				if (valueSelectUniversity === university) {
-					data_api.map((item) => {
-						// Conditions
-						if (item.university === valueSelectUniversity) {
-							arrayDegree.push(item.degree);
-						}
-						let arrayDegreeUnique = [ ...new Set(arrayDegree) ];
-
-						// Set State
-						set_degree(arrayDegreeUnique);
-					});
-				}
-			});
-
-			// Filter by selected University and Degree
-			let arraySchool = [];
-			let arrayEmploymentRateOverall = [];
-			let arrayEmploymentFtPerm = [];
-			let arrayYear = [];
-			let arrayBasicMonthlySalaryMean = [];
-			let arrayBasicMonthlySalaryMedian = [];
-			let arrayGrossMthly25Percentile = [];
-			let arrayGrossMthly75Percentile = [];
-
-			data_api.map((obj) => {
-				if (valueSelectUniversity === obj.university && valueSelectDegree === obj.degree) {
-					// Add to Array
-					arrayEmploymentRateOverall.push(obj.employment_rate_overall);
-					arrayEmploymentFtPerm.push(obj.employment_rate_ft_perm);
-					arrayYear.push(obj.year);
-					arrayBasicMonthlySalaryMean.push(obj.basic_monthly_mean);
-					arrayBasicMonthlySalaryMedian.push(obj.basic_monthly_median);
-					arrayGrossMthly25Percentile.push(obj.gross_mthly_25_percentile);
-					arrayGrossMthly75Percentile.push(obj.gross_mthly_75_percentile);
-					arraySchool.push(obj.school);
-
-					//Set State
-					setValueSelectSchool(arraySchool[0]);
-					set_employment_rate_overall(arrayEmploymentRateOverall);
-					set_employment_rate_ft_perm(arrayEmploymentFtPerm);
-					set_year(arrayYear);
-					set_basic_monthly_mean(arrayBasicMonthlySalaryMean);
-					set_basic_monthly_median(arrayBasicMonthlySalaryMedian);
-					set_gross_mthly_25_percentile(arrayGrossMthly25Percentile);
-					set_gross_mthly_75_percentile(arrayGrossMthly75Percentile);
-
-					console.log(obj.degree, obj.year, obj.employment_rate_overall, obj.basic_monthly_mean);
-				}
-			});
-			let msgString = valueSelectUniversity + ' > ' + valueSelectDegree;
-			setSnackBarMsg(msgString);
-
-			console.log(arrayYear);
-
-			// Reset filter if empty
-			if (valueSelectUniversity === '' || valueSelectDegree === '') {
-				set_employment_rate_overall('');
-				set_employment_rate_ft_perm('');
-			}
-
-			// Enable second field input degree
-			setIsSelectDisabled(false);
-		}
-	};
 
 	// Charts
 	let chart_employment_rate_overall = {
@@ -325,8 +337,14 @@ const CustomizedSelects = () => {
 
 	return (
 		<Container>
-			<Box my={2}>
-				<form onSubmit={handleSubmitForm}>
+			<Typography component="div">
+				<Box fontSize="h5.fontSize" letterSpacing={2} mt={1}>
+					Graduate Employment Survey
+				</Box>
+			</Typography>
+
+			<Grid container spacing={3}>
+				<Grid item md={6} xs={12}>
 					<FormControl className={classes.customFormUniversity}>
 						<InputLabel htmlFor="grouped-native-select">University</InputLabel>
 						<Select
@@ -344,6 +362,8 @@ const CustomizedSelects = () => {
 							))}
 						</Select>
 					</FormControl>
+				</Grid>
+				<Grid item md={6} xs={12}>
 					<FormControl className={classes.customFormDegree}>
 						<InputLabel htmlFor="grouped-native-select">Degree</InputLabel>
 						<Select
@@ -352,6 +372,7 @@ const CustomizedSelects = () => {
 							id="grouped-native-select"
 							disabled={isSelectDisable}
 							onChange={handleChangeDegree}
+							autoWidth={true}
 						>
 							<option aria-label="None" value="" />
 							{data_degree.map((optionValue) => (
@@ -361,44 +382,35 @@ const CustomizedSelects = () => {
 							))}
 						</Select>
 					</FormControl>
-
+				</Grid>
+				{/* <Grid item md={2} xs={12}>
 					<Button
-						variant="contained"
+						variant="outlined"
 						color="primary"
 						type="submit"
 						className={classes.customButtomSearch}
-						onClick={handleClick}
-					>
-						Filter
-					</Button>
-
-					<Button
-						variant="contained"
-						color="secondary"
-						type="submit"
-						className={classes.customButtomSearch}
+						startIcon={<RefreshIcon />}
 						onClick={resetFormHandler}
 					>
 						Reset
 					</Button>
-				</form>
-			</Box>
+				</Grid> */}
+			</Grid>
 
 			{valueSelectUniversity !== '' && valueSelectDegree !== '' ? (
 				<React.Fragment>
 					<Chip
 						label={valueSelectUniversity}
 						component="a"
-						href="#chip"
 						clickable
 						// variant="outlined"
 						className={classes.chipWarning}
 						// color="primary"
 					/>
+
 					<Chip
-						label={valueSelectDegree}
+						label={valueSchool}
 						component="a"
-						href="#chip"
 						clickable
 						// variant="outlined"
 						className={classes.chipDanger}
@@ -406,22 +418,20 @@ const CustomizedSelects = () => {
 					/>
 
 					<Chip
-						label={valueSchool}
+						label={valueSelectDegree}
 						component="a"
-						href="#chip"
 						clickable
 						// variant="outlined"
-						className={classes.chipPink}
+						className={classes.chipPurple}
 						// color="primary"
 					/>
 
 					<Chip
 						label={'Data Count: ' + data_university.length}
 						component="a"
-						href="#chip"
 						clickable
 						// variant="outlined"
-						className={classes.chipPurple}
+						className={classes.chipPrimary}
 						// color="primary"
 					/>
 				</React.Fragment>
