@@ -18,6 +18,5 @@ Installing dependencies
 ```
 
 ### Source (API)
-```sh
 https://data.gov.sg/dataset/graduate-employment-survey-ntu-nus-sit-smu-suss-sutd?view_id=99958a50-6788-4155-bb45-dc0043023cd5&resource_id=9326ca53-9153-4a9c-b93f-8ae032637b70
-```
+
